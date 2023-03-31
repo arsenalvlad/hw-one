@@ -1,0 +1,19 @@
+run:
+  timeout: 5m
+  go: 1.19
+
+linters:
+  enable-all: true
+  disable:
+    - interfacer
+    - maligned
+    - scopelint
+    - golint
+    - godox
+    - forbidigo
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - funlen

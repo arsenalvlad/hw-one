@@ -12,7 +12,6 @@ var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(item string) (string, error) { //nolint: gocognit
 	var result strings.Builder
-	//number := "0123456789"
 
 	str := []rune(item)
 

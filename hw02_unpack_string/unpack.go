@@ -5,13 +5,16 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 var ErrInvalidString = errors.New("invalid string")
 
-func Unpack(str string) (string, error) { //nolint: gocognit
+func Unpack(item string) (string, error) { //nolint: gocognit
 	var result strings.Builder
-	number := "0123456789"
+	//number := "0123456789"
+
+	str := []rune(item)
 
 	reg1 := regexp.MustCompile(`\\[0-9]{2}`)
 
@@ -23,10 +26,10 @@ func Unpack(str string) (string, error) { //nolint: gocognit
 
 	for i := 0; i < len(str); i++ {
 		switch {
-		case i+1 != len(str) && strings.Contains(number, string(str[i])):
+		case i+1 != len(str) && unicode.IsDigit(str[i]):
 			return "", ErrInvalidString
 		case i+1 < len(str) && string(str[i]) == `\`:
-			if matched := reg1.MatchString(str); matched {
+			if matched := reg1.MatchString(string(str)); matched {
 				l, err := strconv.Atoi(string(str[i+2]))
 				if err != nil {
 					return "", err
@@ -37,10 +40,10 @@ func Unpack(str string) (string, error) { //nolint: gocognit
 				continue
 			}
 
-			if matched := reg2.MatchString(str); matched { //nolint: nestif
-				if matched := reg3.MatchString(str); matched {
-					if matched := reg4.MatchString(str); matched {
-						result.WriteString(str[i+2 : i+4])
+			if matched := reg2.MatchString(string(str)); matched { //nolint: nestif
+				if matched := reg3.MatchString(string(str)); matched {
+					if matched := reg4.MatchString(string(str)); matched {
+						result.WriteString(string(str[i+2 : i+4]))
 						i += 3
 						continue
 					}
@@ -58,7 +61,7 @@ func Unpack(str string) (string, error) { //nolint: gocognit
 				i++
 				continue
 			}
-		case i+1 < len(str) && strings.Contains(number, string(str[i+1])):
+		case i+1 < len(str) && unicode.IsDigit(str[i+1]):
 			l, err := strconv.Atoi(string(str[i+1]))
 			if err != nil {
 				return "", err

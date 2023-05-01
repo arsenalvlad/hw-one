@@ -82,7 +82,7 @@ func (l *list) Remove(i *ListItem) {
 	if i == nil {
 		return
 	}
-	if i.Prev == nil {
+	if i.Prev == nil { //nolint: gocritic
 		l.first = i.Next
 		i.Next.Prev = nil
 	} else if i.Next == nil {

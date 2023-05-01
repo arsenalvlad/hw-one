@@ -16,9 +16,9 @@ type lruCache struct {
 
 func (l *lruCache) Set(key Key, value interface{}) bool {
 	if _, ok := l.items[key]; !ok {
-		if l.queue.Len() > l.capacity {
-			l.queue.Remove(l.queue.Back())
+		if l.queue.Len() >= l.capacity {
 			delete(l.items, l.queue.Back().Key)
+			l.queue.Remove(l.queue.Back())
 		}
 
 		l.items[key] = l.queue.PushFront(value)
@@ -28,7 +28,10 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	}
 
 	l.queue.Remove(l.items[key])
+	delete(l.items, key)
+
 	l.items[key] = l.queue.PushFront(value)
+	l.items[key].Key = key
 
 	return true
 }
@@ -36,6 +39,8 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 func (l *lruCache) Get(key Key) (interface{}, bool) {
 	if item, ok := l.items[key]; ok {
 		l.queue.MoveToFront(item)
+		l.items[key].Key = key
+		l.queue.Front().Key = key
 
 		return item.Value, true
 	}

@@ -42,6 +42,10 @@ func (l *list) PushFront(v interface{}) *ListItem {
 	if l.first != nil {
 		data.Next = l.first
 		l.first.Prev = data
+		if l.last == nil {
+			l.last = l.first
+			data.Key = l.first.Key
+		}
 	} else if l.last != nil {
 		l.last.Prev = data
 		data.Next = l.last
@@ -60,6 +64,9 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	if l.last != nil {
 		data.Prev = l.last
 		l.last.Next = data
+		if l.first == nil {
+			l.first = l.last
+		}
 	} else if l.first != nil {
 		l.first.Next = data
 		data.Prev = l.first

@@ -14,8 +14,8 @@ type resStruct struct {
 func Top10(str string) []string {
 	res := make([]string, 0, 10)
 	strMap := make(map[string]int64)
-	reg1 := regexp.MustCompile(`([a-zA-Z]+[,.!'?:])*`)
-	symbol := ",.!'?:"
+	reg1 := regexp.MustCompile(`(^[,.!'?:()]?[a-zA-Zа-яА-Я]*[,.!'?:()]?$)`)
+	symbol := ",.!'?:()"
 
 	strSlice := strings.Fields(strings.ToLower(str))
 

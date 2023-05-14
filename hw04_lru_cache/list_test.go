@@ -31,6 +31,26 @@ func TestList(t *testing.T) {
 		require.Equal(t, 10, l.Front().Value)
 	})
 
+	t.Run("back", func(t *testing.T) {
+		l := NewList()
+
+		l.PushBack(30) // [30]
+		l.PushFront(5) // [5, 30]
+		require.Equal(t, 30, l.Back().Value)
+		require.Equal(t, 5, l.Front().Value)
+		l.PushBack(20) // [5, 30, 20]
+		l.PushBack(10) // [5, 30, 20, 10]
+		l.PushFront(1) // [1, 5, 30, 20, 10]
+
+		require.Equal(t, 5, l.Len())
+		require.Equal(t, 10, l.Back().Value)
+		require.Equal(t, 1, l.Front().Value)
+
+		l.Remove(l.Back())
+		require.Equal(t, 20, l.Back().Value)
+		require.Equal(t, 1, l.Front().Value)
+	})
+
 	t.Run("complex", func(t *testing.T) {
 		l := NewList()
 

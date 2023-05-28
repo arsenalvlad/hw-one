@@ -32,6 +32,7 @@ func Run(tasks []Task, n, m int) (err error) {
 				break
 			}
 		}
+
 		taskCh <- item
 	}
 

@@ -1,6 +1,7 @@
 package hw06pipelineexecution
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -51,6 +52,7 @@ func TestPipeline(t *testing.T) {
 		start := time.Now()
 		for s := range ExecutePipeline(in, nil, stages...) {
 			result = append(result, s.(string))
+			fmt.Println(result)
 		}
 		elapsed := time.Since(start)
 

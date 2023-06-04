@@ -16,25 +16,29 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	var wg sync.WaitGroup
 
 	out := make(Bi)
+	mergeCh := make([]Out, 0, len(in))
 	inin := make(Bi, 1)
 
-	for ko := range in {
-		select {
-		case <-done:
-			return nil
-		default:
-			inin <- ko
-			wg.Add(1)
-			go func() {
-				out <- <-fn1(inin, &done, stages...)
-				wg.Done()
-			}()
-		}
+	go func() {
+		<-done
+		close(inin)
+		close(out)
+	}()
 
+	for ko := range in {
+		inin <- ko
+		wg.Add(1)
+		go func() {
+			mergeCh = append(mergeCh, fn1(inin, &done, stages...))
+			wg.Done()
+		}()
 	}
 
 	go func() {
 		wg.Wait()
+		for _, p := range mergeCh {
+			out <- <-p
+		}
 		close(inin)
 		close(out)
 	}()

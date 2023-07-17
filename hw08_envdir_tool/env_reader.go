@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -30,7 +28,8 @@ func ReadDir(dir string) (Environment, error) {
 	}
 
 	for _, item := range readDir {
-		open, err := os.Open(dir + "/" + item.Name())
+		name := strings.ReplaceAll(item.Name(), "=", "")
+		open, err := os.Open(dir + "/" + name)
 		if err != nil {
 			return nil, fmt.Errorf("could not oepn file: %w", err)
 		}
@@ -48,7 +47,7 @@ func ReadDir(dir string) (Environment, error) {
 		}
 
 		if info.Size() == 0 {
-			result[item.Name()] = EnvValue{
+			result[name] = EnvValue{
 				Value:      "",
 				NeedRemove: true,
 			}
@@ -60,7 +59,7 @@ func ReadDir(dir string) (Environment, error) {
 			return nil, fmt.Errorf("could not prepare env: %w", err)
 		}
 
-		result[item.Name()] = *res
+		result[name] = *res
 	}
 	// Place your code here
 	return result, nil
@@ -74,29 +73,24 @@ func prepareEnv(reader io.Reader) (*EnvValue, error) {
 		return nil, fmt.Errorf("could not read string: %w", err)
 	}
 
-	un, err := strconv.Unquote(line)
-	if err != nil {
-		un = line
-	}
+	value1 := strings.TrimRight(line, " ")
+	value2 := strings.Replace(value1, string([]byte{0x00}), string('\n'), -1)
+	value3 := strings.Trim(value2, string('"'))
 
-	res := strings.ReplaceAll(un, "0x00", string('\n'))
-
-	value := strings.TrimRight(res, " ")
-
-	matchString, err := regexp.MatchString("^[a-zA-Z]+$", value)
-	if err != nil && !errors.Is(err, io.EOF) {
-		return nil, fmt.Errorf("could not match string: %w", err)
-	}
-
-	if !matchString {
-		return &EnvValue{
-			Value:      "",
-			NeedRemove: true,
-		}, nil
-	}
+	//matchString, err := regexp.MatchString("[a-zA-Z0-9]+$", value3)
+	//if err != nil {
+	//	return nil, fmt.Errorf("could not match string: %w", err)
+	//}
+	//
+	//if !matchString {
+	//	return &EnvValue{
+	//		Value:      "",
+	//		NeedRemove: true,
+	//	}, nil
+	//}
 
 	return &EnvValue{
-		Value:      value,
+		Value:      value3,
 		NeedRemove: false,
 	}, nil
 }

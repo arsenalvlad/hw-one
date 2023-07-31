@@ -18,6 +18,9 @@ var (
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	fromFile, err := os.Open(fromPath)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("error file does not exist: %w", err)
+		}
 		return fmt.Errorf("error open from file: %w", err)
 	}
 
@@ -32,7 +35,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return fmt.Errorf("could not offet size: %w", ErrOffsetExceedsFileSize)
 	}
 
-	toFile, err := os.Create(toPath)
+	toFile, err := os.OpenFile(toPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return fmt.Errorf("error open to file: %w", err)
 	}

@@ -41,5 +41,5 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		return exitError.ExitCode()
 	}
 
-	return exitError.ExitCode()
+	return 0
 }

@@ -73,7 +73,7 @@ func prepareEnv(reader io.Reader) (*EnvValue, error) {
 
 	value1 := strings.TrimRight(line, " ")
 	value2 := strings.ReplaceAll(value1, string([]byte{0x00}), string('\n'))
-	value3 := strings.Trim(value2, string('"'))
+	value3 := strings.TrimRight(value2, string('\n'))
 
 	return &EnvValue{
 		Value:      value3,

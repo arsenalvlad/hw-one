@@ -1,7 +1,33 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"testing"
 
-func TestRunCmd(_ *testing.T) {
-	// Place your code here
+	"github.com/stretchr/testify/require"
+)
+
+func TestRunCmd(t *testing.T) {
+	t.Run("done check env for empty, unset", func(t *testing.T) {
+		mapEnv := make(map[string]EnvValue)
+
+		mapEnv["EMPTY"] = EnvValue{
+			Value:      "",
+			NeedRemove: false,
+		}
+
+		mapEnv["UNSET"] = EnvValue{
+			Value:      "",
+			NeedRemove: true,
+		}
+
+		code := RunCmd(os.Args[2:], mapEnv)
+
+		_, okEmpty := os.LookupEnv("EMPTY")
+		_, okUnset := os.LookupEnv("UNSET")
+
+		require.Equal(t, code, 0)
+		require.Equal(t, okEmpty, true)
+		require.Equal(t, okUnset, false)
+	})
 }

@@ -35,7 +35,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return fmt.Errorf("could not offet size: %w", ErrOffsetExceedsFileSize)
 	}
 
-	toFile, err := os.OpenFile(toPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	toFile, err := os.Create(toPath)
 	if err != nil {
 		return fmt.Errorf("error open to file: %w", err)
 	}

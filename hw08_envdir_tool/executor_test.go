@@ -21,7 +21,7 @@ func TestRunCmd(t *testing.T) {
 			NeedRemove: true,
 		}
 
-		code := RunCmd([]string{"/bin/bash", "echo", "test work"}, mapEnv)
+		code := RunCmd([]string{"echo", "test work"}, mapEnv)
 
 		_, okEmpty := os.LookupEnv("EMPTY")
 		_, okUnset := os.LookupEnv("UNSET")

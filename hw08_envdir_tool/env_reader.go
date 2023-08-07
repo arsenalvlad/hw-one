@@ -71,9 +71,9 @@ func prepareEnv(reader io.Reader) (*EnvValue, error) {
 		return nil, fmt.Errorf("could not read string: %w", err)
 	}
 
-	value1 := strings.TrimRight(line, " ")
-	value2 := strings.ReplaceAll(value1, string([]byte{0x00}), string('\n'))
-	value3 := strings.TrimRight(value2, string('\n'))
+	value1 := strings.ReplaceAll(line, string([]byte{0x00}), string('\n'))
+	value2 := strings.TrimRight(value1, string('\n'))
+	value3 := strings.TrimRight(value2, " ")
 
 	return &EnvValue{
 		Value:      value3,

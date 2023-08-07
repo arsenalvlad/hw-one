@@ -8,9 +8,7 @@ import (
 
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmd []string, env Environment) (returnCode int) {
-	res := exec.Command(cmd[0], cmd[1:]...)
-	res.Stdout = os.Stdout
-	res.Stderr = os.Stderr
+	var exitError *exec.ExitError
 
 	for name, item := range env {
 		_, ok := os.LookupEnv(name)
@@ -18,7 +16,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 			err := os.Unsetenv(name)
 			if err != nil {
 				fmt.Println(fmt.Errorf("could not unsetenv: %w", err))
-				return res.ProcessState.ExitCode()
+				return exitError.ExitCode()
 			}
 		}
 
@@ -29,17 +27,19 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		err := os.Setenv(name, item.Value)
 		if err != nil {
 			fmt.Println(fmt.Errorf("could not setenv: %w", err))
-			return res.ProcessState.ExitCode()
+			return exitError.ExitCode()
 		}
-
 	}
 
-	res.Env = append(os.Environ())
+	res := exec.Command(cmd[0], cmd[1:]...) //nolint: gosec
+	res.Stdout = os.Stdout
+	res.Stderr = os.Stderr
+	res.Env = os.Environ()
 
 	if err := res.Run(); err != nil {
 		fmt.Println(fmt.Errorf("could not cmd run: %w", err))
-		return res.ProcessState.ExitCode()
+		return exitError.ExitCode()
 	}
-	// Place your code here.
-	return res.ProcessState.ExitCode()
+
+	return exitError.ExitCode()
 }

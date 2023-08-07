@@ -34,13 +34,6 @@ func ReadDir(dir string) (Environment, error) {
 			return nil, fmt.Errorf("could not oepn file: %w", err)
 		}
 
-		defer func(open *os.File) {
-			err := open.Close()
-			if err != nil {
-				fmt.Println(fmt.Errorf("could not close file: %w", err))
-			}
-		}(open)
-
 		info, err := open.Stat()
 		if err != nil {
 			return nil, fmt.Errorf("could not get stat: %w", err)
@@ -60,6 +53,11 @@ func ReadDir(dir string) (Environment, error) {
 		}
 
 		result[name] = *res
+
+		err = open.Close()
+		if err != nil {
+			fmt.Println(fmt.Errorf("could not close file: %w", err))
+		}
 	}
 	// Place your code here
 	return result, nil
@@ -74,20 +72,8 @@ func prepareEnv(reader io.Reader) (*EnvValue, error) {
 	}
 
 	value1 := strings.TrimRight(line, " ")
-	value2 := strings.Replace(value1, string([]byte{0x00}), string('\n'), -1)
+	value2 := strings.ReplaceAll(value1, string([]byte{0x00}), string('\n'))
 	value3 := strings.Trim(value2, string('"'))
-
-	//matchString, err := regexp.MatchString("[a-zA-Z0-9]+$", value3)
-	//if err != nil {
-	//	return nil, fmt.Errorf("could not match string: %w", err)
-	//}
-	//
-	//if !matchString {
-	//	return &EnvValue{
-	//		Value:      "",
-	//		NeedRemove: true,
-	//	}, nil
-	//}
 
 	return &EnvValue{
 		Value:      value3,

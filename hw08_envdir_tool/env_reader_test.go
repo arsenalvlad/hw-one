@@ -2,6 +2,6 @@ package main
 
 import "testing"
 
-func TestReadDir(t *testing.T) {
+func TestReadDir(_ *testing.T) {
 	// Place your code here
 }

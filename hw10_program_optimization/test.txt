@@ -1,0 +1,24 @@
+1 nothing do
+    stats_optimization_test.go:46: time used: 628.1757ms / 300ms
+    stats_optimization_test.go:47: memory used: 308Mb / 30Mb
+2 easyjson
+    stats_optimization_test.go:46: time used: 418.0635ms / 300ms
+    stats_optimization_test.go:47: memory used: 276Mb / 30Mb
+3 easyjson nocopy all fields
+    stats_optimization_test.go:46: time used: 385.985ms / 300ms
+    stats_optimization_test.go:47: memory used: 276Mb / 30Mb
+4 easyjson nocopy only Email
+    stats_optimization_test.go:46: time used: 399.4725ms / 300ms
+    stats_optimization_test.go:47: memory used: 276Mb / 30Mb
+5 easyjson use bytes replca string
+    stats_optimization_test.go:46: time used: 390.851ms / 300ms
+    stats_optimization_test.go:47: memory used: 243Mb / 30Mb
+6 easyjson regexp one for all
+    stats_optimization_test.go:46: time used: 223.1133ms / 300ms
+    stats_optimization_test.go:47: memory used: 114Mb / 30Mb
+7 easyjson num delete
+    stats_optimization_test.go:46: time used: 220.8166ms / 300ms
+    stats_optimization_test.go:47: memory used: 113Mb / 30Mb
+8 easyjson use new scanner
+    stats_optimization_test.go:46: time used: 184.5111ms / 300ms
+    stats_optimization_test.go:47: memory used: 13Mb / 30Mb

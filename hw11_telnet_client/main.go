@@ -35,6 +35,7 @@ func main() {
 	defer stop3()
 
 	client := NewTelnetClient(os.Args[len(os.Args)-2]+":"+os.Args[len(os.Args)-1], timeout, io.NopCloser(in), out)
+	defer client.Close()
 
 	err := client.Connect()
 	if err != nil {
@@ -90,9 +91,15 @@ func stdinSend(ctx context.Context, wg *sync.WaitGroup, in *bytes.Buffer, t Teln
 	}()
 
 	for scanner.Scan() {
-		fmt.Println(scanner.Text(), "one")
+		err := t.Receive()
+		if err != nil {
+			fmt.Printf("could not receive message: %s\n", err)
+			wg.Done()
+			return
+		}
+
 		in.WriteString(scanner.Text())
-		err := t.Send()
+		err = t.Send()
 		if err != nil {
 			fmt.Printf("could not send message: %s\n", err)
 			wg.Done()

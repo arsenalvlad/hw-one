@@ -1,0 +1,14 @@
+pkgname = "model"
+output = "internal/storage/sql/model"
+no-tests = "false"
+wipe = "true"
+
+[psql]
+dbname = "otus"
+host   = "postgres"
+port   = 5432
+user   = "postgres"
+pass   = "postgres"
+schema = "public"
+sslmode = "disable"
+whitelist = ["calendar_event"]

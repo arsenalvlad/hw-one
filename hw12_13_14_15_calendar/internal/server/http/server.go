@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/model"
 	"go.uber.org/zap"
 )
 
@@ -28,7 +29,7 @@ type Logger interface { // TODO
 }
 
 type Application interface { // TODO
-	AddEvent(ctx context.Context, title string) error
+	AddEvent(ctx context.Context, title string) (*model.Event, error)
 }
 
 func NewServer(logger Logger, app Application, address string) *Server {
@@ -45,8 +46,14 @@ func (s *Server) Start(ctx context.Context) error {
 	)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		s.Logger.Info("hadle /")
-		_, err := io.WriteString(w, "Hi Otus!\n")
+		s.Logger.Info("handle func /")
+		res, err := s.AddEvent(ctx, "iiio")
+		if err != nil {
+			s.Logger.Error("could not add event to /: " + err.Error())
+			return
+		}
+
+		_, err = io.WriteString(w, fmt.Sprintf("Hi otus, %d:%s", res.ID, res.Title))
 		if err != nil {
 			s.Logger.Error("could not handle function to /: " + err.Error())
 		}

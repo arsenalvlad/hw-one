@@ -53,6 +53,10 @@ func main() {
 		newStorage = memoryStorage.New()
 	case "postgres":
 		newStorage = sqlStorage.New(config.Storage.Postgres.DSN())
+		err := newStorage.Connect()
+		if err != nil {
+			logg.Fatal("failed to connect to database "+err.Error(), zap.Any("psql_setting", config.Storage.Postgres))
+		}
 	}
 
 	calendar := app.New(logg, newStorage)

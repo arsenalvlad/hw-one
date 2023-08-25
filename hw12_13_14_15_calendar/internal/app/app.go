@@ -39,15 +39,14 @@ func New(logger Logger, storage Storage) *App {
 	}
 }
 
-func (a *App) AddEvent(ctx context.Context, title string) error {
+func (a *App) AddEvent(ctx context.Context, title string) (*model.Event, error) {
 	event := model.Event{}
 	event.Title = title
 
-	_, err := a.Storage.AddEvent(ctx, event)
+	res, err := a.Storage.AddEvent(ctx, event)
 	if err != nil {
-		return fmt.Errorf("could not add event: %w", err)
+		return nil, fmt.Errorf("could not add event: %w", err)
 	}
-	return nil
-}
 
-// TODO
+	return res, nil
+}

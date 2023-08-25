@@ -5,10 +5,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	memoryStorage "github.com/arsenalvlad/hw12_13_14_15_calendar/internal/storage/memory"
-	sqlStorage "github.com/arsenalvlad/hw12_13_14_15_calendar/internal/storage/sql"
-	"github.com/golang-migrate/migrate/v4"
-	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,8 +13,12 @@ import (
 	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/app"
 	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/arsenalvlad/hw12_13_14_15_calendar/internal/server/http"
+	memoryStorage "github.com/arsenalvlad/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlStorage "github.com/arsenalvlad/hw12_13_14_15_calendar/internal/storage/sql"
+	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"go.uber.org/zap"
 )
 
 var configFile string
@@ -41,7 +41,6 @@ func main() {
 
 	if config.Storage.Type == "postgres" {
 		err := migrateAction(logg, config.Storage.Postgres)
-
 		if err != nil {
 			logg.Fatal("failed to migrate up database "+err.Error(), zap.Any("psql_setting", config.Storage.Postgres))
 		}

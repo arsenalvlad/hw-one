@@ -2,20 +2,21 @@ package memorystorage
 
 import (
 	"context"
+	"sync"
+
 	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/app"
 	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/model"
-	"sync"
 )
 
 type Storage struct {
 	data map[int]model.Event
-	mu   sync.RWMutex //nolint:unused
+	mu   *sync.RWMutex
 }
 
 func New() app.Storage {
 	return &Storage{
 		data: nil,
-		mu:   sync.RWMutex{},
+		mu:   &sync.RWMutex{},
 	}
 }
 
@@ -31,7 +32,7 @@ func (s *Storage) Close() error {
 	return nil
 }
 
-func (s *Storage) AddEvent(ctx context.Context, data model.Event) (*model.Event, error) {
+func (s *Storage) AddEvent(_ context.Context, data model.Event) (*model.Event, error) {
 	s.mu.Lock()
 	data.ID = len(s.data) + 1
 	s.data[data.ID] = data
@@ -40,7 +41,7 @@ func (s *Storage) AddEvent(ctx context.Context, data model.Event) (*model.Event,
 	return &data, nil
 }
 
-func (s *Storage) UpdateEvent(ctx context.Context, data model.Event) (*model.Event, error) {
+func (s *Storage) UpdateEvent(_ context.Context, data model.Event) (*model.Event, error) {
 	s.mu.Lock()
 	s.data[data.ID] = data
 	s.mu.Unlock()
@@ -48,12 +49,17 @@ func (s *Storage) UpdateEvent(ctx context.Context, data model.Event) (*model.Eve
 	return &data, nil
 }
 
-func (s *Storage) ListEvent(ctx context.Context) ([]*model.Event, error) {
-	var items []*model.Event
+func (s *Storage) ListEvent(_ context.Context) ([]*model.Event, error) {
+	if len(s.data) == 0 {
+		return nil, nil
+	}
 
 	s.mu.Lock()
+	items := make([]*model.Event, 0, len(s.data))
+
 	for _, item := range s.data {
-		items = append(items, &item)
+		res := item
+		items = append(items, &res)
 	}
 	s.mu.Unlock()
 

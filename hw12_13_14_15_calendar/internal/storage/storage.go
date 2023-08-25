@@ -4,6 +4,4 @@ import (
 	"fmt"
 )
 
-var (
-	ErrDateBusy = fmt.Errorf("this date was busy other event")
-)
+var ErrDateBusy = fmt.Errorf("this date was busy other event")

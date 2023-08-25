@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+
 	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/model"
 	"go.uber.org/zap"
 )

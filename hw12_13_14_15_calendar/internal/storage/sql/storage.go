@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/storage/sql/serializers"
-	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 
 	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/app"
 	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/model"
 	sqlModel "github.com/arsenalvlad/hw12_13_14_15_calendar/internal/storage/sql/model"
+	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/storage/sql/serializers"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type Storage struct { // TODO

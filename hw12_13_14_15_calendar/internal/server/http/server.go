@@ -3,10 +3,11 @@ package internalhttp
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"os"
+
+	"go.uber.org/zap"
 )
 
 type Server struct { // TODO
@@ -51,7 +52,7 @@ func (s *Server) Start(ctx context.Context) error {
 		}
 	})
 
-	err := http.ListenAndServe(s.Address, nil)
+	err := http.ListenAndServe(s.Address, nil) //nolint: gosec
 	if err != nil {
 		return fmt.Errorf("could not listen and serve http: %w", err)
 	}
@@ -67,8 +68,7 @@ func (s *Server) Start(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) Stop(ctx context.Context) error {
-
+func (s *Server) Stop(_ context.Context) error {
 	os.Exit(1)
 
 	return nil

@@ -24,17 +24,15 @@ func main() {
 	flag.Parse()
 
 	in := &bytes.Buffer{}
-	out := os.Stdout
 
-	ctx, cancel := context.WithCancel(context.Background())
+	signalChanel := make(chan os.Signal, 1)
+	signal.Notify(signalChanel,
+		syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 
-	ctx2, stop2 := signal.NotifyContext(ctx, os.Interrupt)
-	defer stop2()
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
+	defer stop()
 
-	ctx3, stop3 := signal.NotifyContext(ctx, syscall.SIGQUIT)
-	defer stop3()
-
-	client := NewTelnetClient(os.Args[len(os.Args)-2]+":"+os.Args[len(os.Args)-1], timeout, io.NopCloser(in), out)
+	client := NewTelnetClient(os.Args[len(os.Args)-2]+":"+os.Args[len(os.Args)-1], timeout, io.NopCloser(in), os.Stdout)
 	defer client.Close()
 
 	err := client.Connect()
@@ -46,27 +44,24 @@ func main() {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	go stdinSend(ctx, cancel, &wg, in, client)
+	go stdinSend(ctx, &wg, in, client)
 
 	go func() {
-		for {
-			select {
-			case <-ctx2.Done():
-				fmt.Println("I\nwill be\nback!")
-				cancel()
-				return
-			case <-ctx3.Done():
-				fmt.Println("I'm telnet client\nBye-bye")
-				cancel()
-				return
-			}
+		<-ctx.Done()
+		sig := <-signalChanel
+
+		switch sig {
+		case syscall.SIGTERM, syscall.SIGINT:
+			fmt.Println("I'm telnet client\nBye-bye")
+		case os.Interrupt:
+			fmt.Println("I\nwill be\nback!")
 		}
 	}()
 
 	wg.Wait()
 }
 
-func stdinSend(ctx context.Context, cancel context.CancelFunc, wg *sync.WaitGroup, in *bytes.Buffer, t TelnetClient) {
+func stdinSend(ctx context.Context, wg *sync.WaitGroup, in *bytes.Buffer, t TelnetClient) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	go func() {
@@ -77,25 +72,21 @@ func stdinSend(ctx context.Context, cancel context.CancelFunc, wg *sync.WaitGrou
 	for scanner.Scan() {
 		err := t.Receive()
 		if err != nil {
-			wg.Done()
 			return
 		}
 
 		in.WriteString(scanner.Text())
 		err = t.Send()
 		if err != nil {
-			cancel()
-			wg.Done()
 			return
 		}
 
 		err = t.Receive()
 		if err != nil {
-			wg.Done()
 			return
 		}
 
-		if err := scanner.Err(); err != nil {
+		if err = scanner.Err(); err != nil {
 			fmt.Printf("scanner Err: %s\n", err)
 		}
 	}

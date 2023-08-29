@@ -25,10 +25,6 @@ func main() {
 
 	in := &bytes.Buffer{}
 
-	signalChanel := make(chan os.Signal, 1)
-	signal.Notify(signalChanel,
-		syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
-
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 	defer stop()
 
@@ -49,18 +45,6 @@ func main() {
 		err := client.Receive()
 		if err != nil {
 			fmt.Println(err)
-		}
-	}()
-
-	go func() {
-		<-ctx.Done()
-		sig := <-signalChanel
-
-		switch sig {
-		case syscall.SIGTERM, syscall.SIGINT:
-			fmt.Println("I'm telnet client\nBye-bye")
-		case os.Interrupt:
-			fmt.Println("I\nwill be\nback!")
 		}
 	}()
 

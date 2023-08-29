@@ -25,10 +25,6 @@ func main() {
 
 	in := &bytes.Buffer{}
 
-	signalChanel := make(chan os.Signal, 1)
-	signal.Notify(signalChanel,
-		syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
-
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 	defer stop()
 
@@ -43,42 +39,16 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(2)
+	wg.Add(1)
 	go stdinSend(ctx, &wg, in, client)
-	go stdoutReceive(ctx, &wg, client)
-
 	go func() {
-		<-ctx.Done()
-		sig := <-signalChanel
-
-		switch sig {
-		case syscall.SIGTERM, syscall.SIGINT:
-			fmt.Println("I'm telnet client\nBye-bye")
-		case os.Interrupt:
-			fmt.Println("I\nwill be\nback!")
+		err := client.Receive()
+		if err != nil {
+			fmt.Println(err)
 		}
 	}()
 
 	wg.Wait()
-}
-
-func stdoutReceive(ctx context.Context, waitGroup *sync.WaitGroup, t TelnetClient) {
-	errCh := make(chan error)
-
-	defer func() {
-		<-ctx.Done()
-		waitGroup.Done()
-		close(errCh)
-	}()
-
-	for {
-		errCh <- t.Receive()
-		err := <-errCh
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
 }
 
 func stdinSend(ctx context.Context, wg *sync.WaitGroup, in *bytes.Buffer, t TelnetClient) {

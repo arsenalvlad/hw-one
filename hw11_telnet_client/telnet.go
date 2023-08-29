@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -61,6 +62,9 @@ func (t *TelnetClienter) Send() error {
 func (t *TelnetClienter) Receive() error {
 	_, err := io.Copy(t.Out, t.Conn)
 	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
 		return fmt.Errorf("can not receive message to stdout: %w", err)
 	}
 

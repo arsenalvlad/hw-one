@@ -27,7 +27,9 @@ fileEquals /tmp/nc.out "${expected_nc_out}"
 
 expected_telnet_out='Hello
 From
-NC'
+NC
+
+EOF'
 fileEquals /tmp/telnet.out "${expected_telnet_out}"
 
 rm -f go-telnet

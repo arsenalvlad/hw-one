@@ -41,12 +41,7 @@ func main() {
 
 	wg.Add(1)
 	go stdinSend(ctx, &wg, in, client)
-	go func() {
-		err := client.Receive()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}()
+	go client.Receive()
 
 	wg.Wait()
 }

@@ -61,7 +61,6 @@ func main() {
 			fmt.Println("I'm telnet client\nBye-bye")
 		case os.Interrupt:
 			fmt.Println("I\nwill be\nback!")
-
 		}
 	}()
 

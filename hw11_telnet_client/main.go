@@ -43,8 +43,9 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
+	wg.Add(2)
 	go stdinSend(ctx, &wg, in, client)
+	go stdoutReceive(ctx, &wg, client)
 
 	go func() {
 		<-ctx.Done()
@@ -61,33 +62,44 @@ func main() {
 	wg.Wait()
 }
 
-func stdinSend(ctx context.Context, wg *sync.WaitGroup, in *bytes.Buffer, t TelnetClient) {
-	scanner := bufio.NewScanner(os.Stdin)
+func stdoutReceive(ctx context.Context, waitGroup *sync.WaitGroup, t TelnetClient) {
+	errCh := make(chan error)
 
+	defer func() {
+		<-ctx.Done()
+		waitGroup.Done()
+		close(errCh)
+	}()
+
+	for {
+		errCh <- t.Receive()
+		err := <-errCh
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+}
+
+func stdinSend(ctx context.Context, wg *sync.WaitGroup, in *bytes.Buffer, t TelnetClient) {
 	go func() {
 		<-ctx.Done()
 		wg.Done()
 	}()
 
-	for scanner.Scan() {
-		err := t.Receive()
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		resp, err := reader.ReadString('\n')
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 
-		in.WriteString(scanner.Text())
+		in.WriteString(resp)
 		err = t.Send()
 		if err != nil {
+			fmt.Println(err)
 			return
-		}
-
-		err = t.Receive()
-		if err != nil {
-			return
-		}
-
-		if err = scanner.Err(); err != nil {
-			fmt.Printf("scanner Err: %s\n", err)
 		}
 	}
 }

@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/signal"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -25,7 +24,7 @@ func main() {
 
 	in := &bytes.Buffer{}
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background())
 	defer stop()
 
 	client := NewTelnetClient(os.Args[len(os.Args)-2]+":"+os.Args[len(os.Args)-1], timeout, io.NopCloser(in), os.Stdout)

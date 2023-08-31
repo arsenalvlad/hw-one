@@ -37,6 +37,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestStorage_AddEvent(t *testing.T) {
+	timeNow := time.Now()
+
 	type fields struct {
 		data map[int]model.Event
 		mu   *sync.RWMutex
@@ -63,7 +65,7 @@ func TestStorage_AddEvent(t *testing.T) {
 				data: model.Event{
 					ID:          1,
 					Title:       "qwe",
-					EventTime:   time.Now(),
+					EventTime:   timeNow,
 					Duration:    3000,
 					Description: "asdq",
 					UserID:      1,
@@ -72,7 +74,7 @@ func TestStorage_AddEvent(t *testing.T) {
 			want: &model.Event{
 				ID:          1,
 				Title:       "qwe",
-				EventTime:   time.Now(),
+				EventTime:   timeNow,
 				Duration:    3000,
 				Description: "asdq",
 				UserID:      1,

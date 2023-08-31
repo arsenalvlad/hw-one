@@ -1,0 +1,22 @@
+# Server config
+server:
+  host: 127.0.0.1
+  port: 8081
+
+logger:
+  level: DEBUG
+
+storage:
+  type: postgres # or memory
+  memory:
+    deleteTime: 300
+  postgres:
+    host: 127.0.0.1
+    port: 5432
+    user: postgres
+    password: postgres
+    database: otus
+    sslmode: disable
+    migration:
+      path: database/migrations
+      table: calendar_migrations

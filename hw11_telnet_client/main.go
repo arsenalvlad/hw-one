@@ -39,9 +39,9 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
+	wg.Add(2)
 	go stdinSend(ctx, &wg, in, client)
-	go client.Receive()
+	go receive(ctx, &wg, client)
 
 	wg.Wait()
 }
@@ -65,6 +65,26 @@ func stdinSend(ctx context.Context, wg *sync.WaitGroup, in *bytes.Buffer, t Teln
 		if err != nil {
 			fmt.Println(err)
 			return
+		}
+	}
+}
+
+func receive(ctx context.Context, wg *sync.WaitGroup, t TelnetClient) {
+	errCh := make(chan error)
+	defer func() {
+		wg.Done()
+	}()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case errCh <- t.Receive():
+			err := <-errCh
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 		}
 	}
 }

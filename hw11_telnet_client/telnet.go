@@ -47,13 +47,8 @@ func (t *TelnetClienter) Connect() error {
 }
 
 func (t *TelnetClienter) Send() error {
-	sms, err := io.ReadAll(t.In)
-	if err != nil {
-		return fmt.Errorf("can not read all from stdin: %w", err)
-	}
-	_, err = t.Conn.Write(sms)
-	if err != nil {
-		return fmt.Errorf("can not write message to host: %w", err)
+	if _, err := io.Copy(t.Conn, t.In); err != nil {
+		return fmt.Errorf("can not copy message send: %w", err)
 	}
 
 	return nil

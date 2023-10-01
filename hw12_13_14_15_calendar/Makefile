@@ -22,6 +22,9 @@ run-img: build-img
 version: build
 	$(BIN) version
 
+protoc:
+	protoc --go-grpc_out=./ --go_out=./ --go-grpc_opt=require_unimplemented_servers=false ./proto/calendar.proto
+
 test:
 	go test -race ./internal/...
 

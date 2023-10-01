@@ -36,8 +36,9 @@ type Postgres struct {
 }
 
 type ServerConf struct {
-	Host string `yaml:"host"`
-	Port string `yaml:"port"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	GRPCPort string `yaml:"grpcPort"`
 }
 
 type LoggerConf struct {
@@ -69,6 +70,10 @@ func (p *Postgres) MigrateDSN() string {
 	return fmt.Sprintf("%s&x-migrations-table=%s", p.DSN(), p.Migration.Table)
 }
 
-func (s *ServerConf) Address() string {
+func (s *ServerConf) HTTPAddress() string {
 	return fmt.Sprintf("%s:%s", s.Host, s.Port)
+}
+
+func (s *ServerConf) GRPCAddress() string {
+	return fmt.Sprintf("%s:%s", s.Host, s.GRPCPort)
 }

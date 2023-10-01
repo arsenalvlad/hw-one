@@ -13,6 +13,10 @@ type App struct {
 	Storage
 }
 
+type Application interface { // TODO
+	AddEvent(ctx context.Context, title string) (*model.Event, error)
+}
+
 type Logger interface {
 	Debug(msg string, fields ...zap.Field)
 	Info(msg string, fields ...zap.Field)

@@ -3,80 +3,59 @@ package internalhttp
 import (
 	"context"
 	"fmt"
-	"io"
+	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/app"
+	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/logger"
 	"net/http"
-	"os"
+	"time"
 
-	"github.com/arsenalvlad/hw12_13_14_15_calendar/internal/model"
 	"go.uber.org/zap"
 )
 
 type Server struct { // TODO
 	Address string
-	Logger
-	Application
+	*logger.Logger
+	app.Application
+	Server *http.Server
 }
 
-type Logger interface { // TODO
-	Debug(msg string, fields ...zap.Field)
-	Info(msg string, fields ...zap.Field)
-	Warn(msg string, fields ...zap.Field)
-	Error(msg string, fields ...zap.Field)
-	DPanic(msg string, fields ...zap.Field)
-	Panic(msg string, fields ...zap.Field)
-	Fatal(msg string, fields ...zap.Field)
-	Sync() error
-}
+func NewServer(logger *logger.Logger, app app.Application, address string) *Server {
+	router := http.NewServeMux()
+	router.HandleFunc("/", myHandler)
 
-type Application interface { // TODO
-	AddEvent(ctx context.Context, title string) (*model.Event, error)
-}
+	server := &http.Server{
+		Addr:    address,
+		Handler: router,
+	}
 
-func NewServer(logger Logger, app Application, address string) *Server {
 	return &Server{
 		Logger:      logger,
 		Application: app,
 		Address:     address,
+		Server:      server,
 	}
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	s.Logger.Info("Start server ",
-		zap.String("address", s.Address),
+	s.Logger.Info("Starting http server ",
+		zap.String("DSN", s.Address),
 	)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		s.Logger.Info("handle func /")
-		res, err := s.AddEvent(ctx, "iiio")
-		if err != nil {
-			s.Logger.Error("could not add event to /: " + err.Error())
-			return
-		}
+	loggingMiddleware := LoggingMiddleware(s.Logger)
+	loggedRouter := loggingMiddleware(s.Server.Handler)
 
-		_, err = io.WriteString(w, fmt.Sprintf("Hi otus, %d:%s", res.ID, res.Title))
-		if err != nil {
-			s.Logger.Error("could not handle function to /: " + err.Error())
-		}
-	})
-
-	err := http.ListenAndServe(s.Address, nil) //nolint: gosec
+	err := http.ListenAndServe(s.Address, loggedRouter) //nolint: gosec
 	if err != nil {
 		return fmt.Errorf("could not listen and serve http: %w", err)
 	}
 
-	go func() {
-		<-ctx.Done()
-		err := s.Stop(ctx)
-		if err != nil {
-			s.Logger.Error("could not stop http server: " + err.Error())
-		}
-	}()
-
 	return nil
 }
 
-func (s *Server) Stop(_ context.Context) error {
-	os.Exit(1)
+func myHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "hello!")
+	time.Sleep(1 * time.Second)
+}
 
-	return nil
+func (s *Server) Stop(ctx context.Context) error {
+	return s.Server.Shutdown(ctx)
 }

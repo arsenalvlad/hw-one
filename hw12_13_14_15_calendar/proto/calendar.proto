@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "./internal/server/grpc/calendar";
+
+package calendar;
+
+service Application {
+  rpc AddEvent(Event) returns (Event);
+  rpc UpdateEvent(Event) returns (Event);
+  rpc ListEvents(google.protobuf.Empty) returns (EventSlice);
+}
+
+message Event {
+  int64 id = 1;
+  string title = 2;
+  string description = 3;
+  int64 user_id = 4;
+  google.protobuf.Timestamp  event_time_at = 5;
+  google.protobuf.Timestamp  duration = 6;
+}
+
+message EventSlice {
+  repeated Event data = 1;
+}
